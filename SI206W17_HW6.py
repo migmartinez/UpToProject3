@@ -2,6 +2,7 @@
 import json
 import unittest
 import random
+from functools import reduce
 
 ## As usual, this HW is worth 500 points in total.
 ## There are 10 problems. Each one is worth 50 points.
@@ -79,6 +80,9 @@ def access_third_elem(seq):
 ## End
 
 # Write your equivalent function and assignment statement here
+def sample_func(inp):
+    sample = reduce(lambda x: x[2], inp)
+    return sample
 
 
 ## [PROBLEM 4]
@@ -91,10 +95,10 @@ programs_written = [10, 500, 20, 131, 46]
 ## End provided code
 
 # Given that provided code, write one line of code to create a zip iterator instance saved in a variable called student_tups, here:
-
+student_tups = zip(names, seniority, programs_written)
 
 # Then write a line of code to cast the iterator to a list (it should end up as a list of tuples). Save that list in a variable called student_tups_list.
-
+student_tups_list = list(student_tups)
 
 ## You can test this out with any code you like here, and similar below other problems, but make sure to comment out any code that uses up the iterator in order to pass the tests!
     
@@ -103,8 +107,7 @@ programs_written = [10, 500, 20, 131, 46]
 ## [PROBLEM 5]
 print("\n\n***** Problem 5 *****")
 # Use a list comprehension to create a list of Student instances out of the student_tups list you just created in Problem 2, and save that list in a variable called programmers. You should make sure you pass these tests before continuing, as you'll need this list for problems later on!
-
-
+programmers = [Student(names, seniority, programs_written) for names, seniority, programs_written in student_tups_list]
 
 ## [PROBLEM 6]
 print("\n\n***** Problem 6 *****")
@@ -116,25 +119,33 @@ print("\n\n***** Problem 6 *****")
 ## Write code to cast that iterator to a list. Save that list in the variable prod_list.
 
 ## You may add a method to the Student class if you wish in order to do this, but you do not need to. (If you do, make sure you do not create any syntax errors that keep code/tests from running!)
+def program_productivity(student):
+    return student.num_programs / student.years_UM
 
-
+prod_iter = map(program_productivity, programmers)
+prod_list = list(prod_iter)
 
 ## [PROBLEM 7]
 print("\n\n***** Problem 7 *****")
 # Create a list of tuples wherein each tuple has a student's name and productivity value. Save the list of tuples in a variable called names_and_productivities. To do this, you should use a list comprehension (you may also use the zip function, and you may use any variables you have already created).
 
 ## But be careful that if you use answers from previous problems, you use the LISTs you generated, so that all your tests can still pass and you avoid confusion!
-
+product_tups = zip(names, prod_list)
+names_and_productivities = list(product_tups)
 
 
 ## [PROBLEM 8]
 print("\n\n***** Problem 8 *****")
 # Use the Python filter function to select the subset of programmers who have names with 5 or more characters. (i.e. ["Albert","Dinesh","Euijin"]) Your result should be an filter object that points to Student instances. Save that filter iterator in a variable called long_names.
+def long(stud):
+    if len(stud.name) >= 5:
+        return stud.name
 
+long_names = filter(long, programmers)
 
 
 ## Then write code to cast the value of long_names to a list and save it in the variable long_names_list. 
-
+long_names_list = list(long_names)
 
 
 ## [PROBLEM 9]
