@@ -8,6 +8,7 @@ import random
 
 ## There are tests for each problem; you should also follow the instructions for things to do in the code that cannot be tested with unit tests, e.g. using certain structures.
 
+## MIGUEL MARTINEZ
 
 ## [PROBLEM 1]
 print("\n\n***** Problem 1 *****")
@@ -31,7 +32,9 @@ class Student():
         return this_Student.years_UM
 
     # Define the additional method here
-    
+    def write_programs(self, opt = 1):
+        self.num_programs = self.num_programs + opt
+        return self.num_programs
 
 #### DONE WITH STUDENT CLASS DEFINITION
 
