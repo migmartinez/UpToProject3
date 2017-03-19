@@ -80,10 +80,9 @@ def access_third_elem(seq):
 ## End
 
 # Write your equivalent function and assignment statement here
-def sample_func(inp):
-    sample = reduce(lambda x: x[2], inp)
-    return sample
-
+def sample_func(seq):
+    r = list(map(lambda x:seq[2], seq))
+    return r[0]
 
 ## [PROBLEM 4]
 print("\n\n***** Problem 4 *****")
@@ -154,7 +153,7 @@ print("\n\n***** Problem 9 *****")
 # Use a list comprehension to generate a LIST of just the names of those Student instances whose name is longer than their seniority (i.e., ["Albert", "Mai", "Dinesh", "Euijin"]). Assign it to a variable called names_with_not_too_much_seniority.
 
 ## Note that you can use another list you have already created for this problem.
-
+names_with_not_too_much_seniority = [y[0] for y in student_tups_list if len(y[0]) > y[1]]
 
 
 
@@ -174,19 +173,26 @@ print("\n\n***** Problem 10 *****")
 ## We have provided files samplehw6_1.txt and samplehw6_2.txt for your use for this problem, which hopefully you have downloaded, so you can test with those file names! The test below also relies upon these files. Of course, you could also create other files for testing.
 
 # Define readfiles (make sure to close the file reference in the right place)
-
+def readfiles(filenames_list):
+    for file in filenames_list:
+        infile = open(file, 'r')
+        for line in infile:
+            yield line
+        infile.close()
 
 # Define len_check
-
+def len_check(gen):
+    return (line for line in gen if len(line) > 40)
 
 # Define main_filterer
-
+def main_filterer(file_list):
+    return list(len_check(readfiles(file_list)))
 
 
 ## Uncomment this code to test so you can see easily what results from your code. DO uncomment it. DO NOT delete or change it. (You can add other code above while you work, of course.)
-# provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
-# for ln in main_filterer(provided_file_names):
-#     print(ln.rstrip('\n'), end=" ")
+provided_file_names = ["samplehw6_1.txt","samplehw6_2.txt"]
+for ln in main_filterer(provided_file_names):
+    print(ln.rstrip('\n'), end=" ")
 #####
 
 
