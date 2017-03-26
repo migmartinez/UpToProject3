@@ -120,18 +120,24 @@ conn.commit()
 
 
 # Select from the database all of the TIMES the tweets you collected were posted and fetch all the tuples that contain them in to the variable tweet_posted_times.
-
-
+tweet_posted_times = []
+cur.execute('SELECT time_posted FROM Tweets')
+result = cur.fetchall()
+for tup in result:
+	tweet_posted_times.append(tup)
 # Select all of the tweets (the full rows/tuples of information) that have been retweeted MORE than 2 times, and fetch them into the variable more_than_2_rts.
-
-
+more_than_2_rts = []
+cur.execute('SELECT * FROM Tweets WHERE retweets>2')
+result2 = cur.fetchall()
+for tup2 in result2:
+	more_than_2_rts.append(tup2)
 
 # Select all of the TEXT values of the tweets that are retweets of another account (i.e. have "RT" at the beginning of the tweet text). Save the FIRST ONE from that group of text values in the variable first_rt. Note that first_rt should contain a single string value, not a tuple.
-
-
-
+cur.execute('SELECT * FROM Tweets WHERE tweet_text LIKE "RT%"')
+result3 = cur.fetchall()
+first_rt = result3[0][3]
 # Finally, done with database stuff for a bit: write a line of code to close the cursor to the database.
-
+cur.close()
 
 
 ## [PART 3] - Processing data
@@ -178,7 +184,7 @@ class PartTwo(unittest.TestCase):
 		self.assertEqual(type(more_than_2_rts),type([]))
 		self.assertEqual(type(more_than_2_rts[0]),type(("hello",)))
 	def test3(self):
-		self.assertEqual(set([x[3][:2] for x in more_than_2_rts]),{"RT"})
+		self.assertEqual(set([x[3][:2] for x in more_than_2_rts]),{"RT"}) # bad test?
 	def test4(self):
 		self.assertTrue("+0000" in tweet_posted_times[0][0])
 	def test5(self):
