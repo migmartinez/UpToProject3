@@ -14,7 +14,7 @@ import twitter_info # same deal as always...
 import json
 import sqlite3
 
-## Your name:
+## Your name: Miguel Martinez
 ## The names of anyone you worked with on this project:
 
 #####
@@ -39,16 +39,36 @@ api = tweepy.API(auth, parser=tweepy.parsers.JSONParser())
 
 CACHE_FNAME = "SI206_project3_cache.json"
 # Put the rest of your caching setup here:
-
-
+try:
+	cache_file = open(CACHE_FNAME,'r')
+	cache_contents = cache_file.read()
+	cache_file.close()
+	CACHE_DICTION = json.loads(cache_contents)
+except:
+	CACHE_DICTION = {}
 
 # Define your function get_user_tweets here:
+def get_user_tweets(handle):
+	unique_identifier = "twitter_{}".format(handle)
+	if unique_identifier in CACHE_DICTION:
+		print('using cached data for', handle)
+		twitter_results = CACHE_DICTION[unique_identifier]
+	else:
+		print('getting data from internet for', handle)
+		twitter_results = api.user_timeline(handle)
+		CACHE_DICTION[unique_identifier] = twitter_results
+		f = open(CACHE_FNAME,'w')
+		f.write(json.dumps(CACHE_DICTION))
+		f.close()
 
-
+	twenty_tweets = []
+	for tweet in twitter_results:
+		twenty_tweets.append(tweet)
+	return twenty_tweets[:20]
 
 
 # Write an invocation to the function for the "umich" user timeline and save the result in a variable called umich_tweets:
-
+umich_tweets = get_user_tweets("umich")
 
 
 
