@@ -13,9 +13,10 @@ import tweepy
 import twitter_info # same deal as always...
 import json
 import sqlite3
+import re
 
 ## Your name: Miguel Martinez
-## The names of anyone you worked with on this project:
+## The names of anyone you worked with on this project: N/A
 
 #####
 
@@ -102,13 +103,50 @@ umich_tweets = get_user_tweets("umich")
 ## HINT: There's a Tweepy method to get user info that we've looked at before, so when you have a user id or screenname you can find alllll the info you want about the user.
 ## HINT #2: You may want to go back to a structure we used in class this week to ensure that you reference the user correctly in each Tweet record.
 ## HINT #3: The users mentioned in each tweet are included in the tweet dictionary -- you don't need to do any manipulation of the Tweet text to find out which they are! Do some nested data investigation on a dictionary that represents 1 tweet to see it!
+conn = sqlite3.connect('project3_tweets.db')
+cur = conn.cursor()
+cur.execute('DROP TABLE IF EXISTS Tweets')
+cur.execute('DROP TABLE IF EXISTS Users')
+cur.execute('CREATE TABLE Tweets (tweet_id TEXT PRIMARY KEY, text TEXT, user_id TEXT, time_posted TIMESTAMP, retweets INTEGER, FOREIGN KEY (user_id) REFERENCES Users(user_id))')
+cur.execute('CREATE TABLE Users (user_id TEXT PRIMARY KEY, screen_name TEXT, num_favs INTEGER, description TEXT)')
 
+def get_twitter_users(string_of_users):
+	pattern = r'(?<=^|(?<=[^a-zA-Z0-9-_\.]))@([A-Za-z]+[A-Za-z0-9_]+)'
+	result = re.findall(pattern, string_of_users)
+	return result
 
+for tweet in umich_tweets:
+	cur.execute("INSERT INTO Tweets (tweet_id, text, user_id, time_posted, retweets) VALUES (?, ?, ?, ?, ?)", (tweet['id'], tweet['text'], tweet['user']['id'], tweet['created_at'], tweet['retweet_count']))
 
+list_names = []
+for tweet in umich_tweets:
+	r = get_twitter_users(tweet['text'])
+	list_names.append(r)
 
+clean_names = []
+for lst in list_names:
+	if lst is not []:
+		for name in lst:
+			clean_names.append(name)
+print(clean_names)
 
+user_id = []
+screen_name = []
+num_favs = []
+description = []
+for user in clean_names:
+	user_info = get_user_tweets(user)
+	for y in user_info:
+		user_id.append(y['user']['id'])
+		screen_name.append(y['user']['screen_name'])
+		num_favs.append(y['user']['favourites_count'])
+		description.append(y['user']['description'])
+		user_tweet_tups = zip(user_id, screen_name, num_favs, description)
 
-
+statement = 'INSERT OR IGNORE INTO Users VALUES (?, ?, ?, ?)'
+for tup in user_tweet_tups:
+	cur.execute(statement, tup)
+conn.commit()
 
 
 
@@ -127,7 +165,7 @@ umich_tweets = get_user_tweets("umich")
 
 
 # Make a query to select all the descriptions (descriptions only) of the users who have favorited more than 25 tweets. Access all those strings, and save them in a variable called descriptions_fav_users, which should ultimately be a list of strings.
-
+#query4 = 'SELECT description FROM Users WHERE num_favs > 25'
 
 
 # Make a query using an INNER JOIN to get a list of tuples with 2 elements in each tuple: the user screenname and the text of the tweet -- for each tweet that has been retweeted more than 50 times. Save the resulting list of tuples in a variable called joined_result.
