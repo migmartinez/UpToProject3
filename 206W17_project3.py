@@ -6,6 +6,9 @@
 
 ## You may turn the project in late as a comment to the project assignment at a deduction of 10 percent of the grade per day late. This is SEPARATE from the late assignment submissions available for your HW.
 
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import unittest
 import itertools
 import collections
@@ -14,6 +17,14 @@ import twitter_info # same deal as always...
 import json
 import sqlite3
 import re
+from collections import Counter
+import sys
+import codecs
+
+if sys.stdout.encoding != 'UTF-8':
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.buffer, 'strict')
+if sys.stderr.encoding != 'UTF-8':
+    sys.stderr = codecs.getwriter('utf-8')(sys.stderr.buffer, 'strict')
 
 ## Your name: Miguel Martinez
 ## The names of anyone you worked with on this project: N/A
@@ -123,12 +134,12 @@ for tweet in umich_tweets:
 	r = get_twitter_users(tweet['text'])
 	list_names.append(r)
 
-#convert this to a set
 clean_names = []
 for lst in list_names:
 	if lst is not []:
 		for name in lst:
-			clean_names.append(name)
+			clean_names = set(clean_names)
+			clean_names.add(name)
 
 user_id = []
 screen_name = []
@@ -184,25 +195,57 @@ query5 = 'SELECT Tweets.text, Users.screen_name FROM Tweets INNER JOIN Users WHE
 joined_result = []
 for tup in cur.execute(query5):
 	joined_result.append(tup)
-
 ## Task 4 - Manipulating data with comprehensions & libraries
 
 ## Use a set comprehension to get a set of all words (combinations of characters separated by whitespace) among the descriptions in the descriptions_fav_users list. Save the resulting set in a variable called description_words.
-
-
+description_words = []
+for descript in descriptions_fav_users:
+	for word in descript.split():
+		description_words = set(description_words)
+		description_words.add(word)
 
 ## Use a Counter in the collections library to find the most common character among all of the descriptions in the descriptions_fav_users list. Save that most common character in a variable called most_common_char. Break any tie alphabetically (but using a Counter will do a lot of work for you...).
+new_list = []
+for descript in descriptions_fav_users:
+	for char in descript.strip():
+		new_list.append(char)
+
+almost = Counter(new_list).most_common(2)
+most_common_char = almost[1][0]
 
 
 
 ## Putting it all together...
 # Write code to create a dictionary whose keys are Twitter screen names and whose associated values are lists of tweet texts that that user posted. You may need to make additional queries to your database! To do this, you can use, and must use at least one of: the DefaultDict container in the collections library, a dictionary comprehension, list comprehension(s). Y
 # You should save the final dictionary in a variable called twitter_info_diction.
+def get_tweets(handle):
+	unique_identifier = "twitter_{}".format(handle)
+	if unique_identifier in CACHE_DICTION:
+		print('using cached data for', handle)
+		twitter_results = CACHE_DICTION[unique_identifier]
+	else:
+		print('getting data from internet for', handle)
+		twitter_results = api.user_timeline(handle)
+		CACHE_DICTION[unique_identifier] = twitter_results
+		f = open(CACHE_FNAME,'w')
+		f.write(json.dumps(CACHE_DICTION))
+		f.close()
 
+	twenty_tweets = []
+	for tweet in twitter_results:
+		twenty_tweets.append(tweet['text'])
+	return twenty_tweets[:20]
 
+query6 = 'SELECT Users.screen_name FROM Users'
+twitter_info_diction = {}
+for name in cur.execute(query6):
+	r = get_tweets(name[0])
+	twitter_info_diction[name[0]] = r
 
 ### IMPORTANT: MAKE SURE TO CLOSE YOUR DATABASE CONNECTION AT THE END OF THE FILE HERE SO YOU DO NOT LOCK YOUR DATABASE (it's fixable, but it's a pain). ###
-
+conn.commit()
+cur.close()
+conn.close()
 
 ###### TESTS APPEAR BELOW THIS LINE ######
 ###### Note that the tests are necessary to pass, but not sufficient -- must make sure you've followed the instructions accurately! ######
